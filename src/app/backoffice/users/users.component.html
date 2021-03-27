@@ -1,0 +1,210 @@
+<mat-tab-group mat-align-tabs="center" animationDuration="200ms" #tabGroup>
+    <mat-tab label="Liste des utilisateurs">
+        <form class="row" (ngSubmit)="onAddUser()" [formGroup]="addUserForm">
+            <div class="col s4">
+                <mat-form-field>
+                    <mat-label>Nom d'utilisateur</mat-label>
+                    <input type="text" matInput formControlName="username">
+                    <mat-error>{{ getErrors(addUserForm, 'username') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s4">
+                <mat-form-field>
+                    <mat-label>Adresse email</mat-label>
+                    <input type="email" matInput formControlName="email">
+                    <mat-error>{{ getErrors(addUserForm, 'email') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s4">
+                <button mat-raised-button color="primary" [disabled]="addUserForm.invalid && addUserForm.dirty">Ajouter</button>
+            </div>
+        </form>
+
+        <div class="row">
+            <div class="col s12">
+                <div cdkDropList class="drop-list" (cdkDropListDropped)="dropUser($event)" *ngIf="users.length">
+                    <div class="drop-box" *ngFor="let user of users; let index = index" cdkDrag>
+                        <div class="row">
+                            <div class="col s2 l1">
+                                {{ index + 1 }}
+                            </div>
+                            <div class="col s6 l5">
+                                <p>{{ user.username }}</p>
+                            </div>
+                            <div class="col l2 hide-on-med-and-down">
+                                {{ user.firstname }}
+                            </div>
+                            <div class="col l2 hide-on-med-and-down">
+                                {{ user.lastname }}
+                            </div>
+                            <div class="col s2 l1">
+                                <button
+                                    mat-icon-button
+                                    color="accent"
+                                    aria-label="Modifier l'utilisateur'"
+                                    type="button"
+                                    (click)="onGoToEditUser(user)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                            </div>
+                            <div class="col s2 l1">
+                                <button
+                                    mat-icon-button
+                                    color="warn"
+                                    aria-label="Supprimer l'utilisateur"
+                                    type="button"
+                                    (click)="onRemoveUser(user)">
+                                    <mat-icon>remove_circle</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="drop-handle" cdkDragHandle>
+                            <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+                                <path d="M0 0h24v24H0z" fill="none"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                <button mat-raised-button color="accent" (click)="onSaveUsersPositions()">Enregistrer la position des utilisateurs</button>
+            </div>
+        </div>
+    </mat-tab>
+
+    <mat-tab label="Modifier un utilisateur">
+        <div class="row" id="users-autocomplete">
+            <div class="col s12">
+                <mat-form-field>
+                    <input type="text"
+                           placeholder="Entrez le pseudo de l'utilisateur à modifier"
+                           aria-label="Pseudo de l'utilisateur à modifier"
+                           matInput
+                           [formControl]="usersAutocompleteControl"
+                           [matAutocomplete]="usersAutocomplete">
+                    <mat-autocomplete #usersAutocomplete="matAutocomplete">
+                        <mat-option *ngFor="let user of filteredUsers | async" [value]="user.username">
+                            {{ user.username }}
+                        </mat-option>
+                    </mat-autocomplete>
+                </mat-form-field>
+            </div>
+        </div>
+        <form class="row" (ngSubmit)="onEditUser()" [formGroup]="editUserForm">
+            <div class="col s12 l4">
+                <mat-form-field>
+                    <mat-label>Nom d'utilisateur</mat-label>
+                    <input type="text" matInput formControlName="username" required>
+                    <mat-error>{{ getErrors(editUserForm, 'username') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12 m6 l4">
+                <mat-form-field>
+                    <mat-label>Prénom</mat-label>
+                    <input type="text" matInput formControlName="firstname" required>
+                    <mat-error>{{ getErrors(editUserForm, 'firstname') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12 m6 l4">
+                <mat-form-field>
+                    <mat-label>Nom</mat-label>
+                    <input type="text" matInput formControlName="lastname" required>
+                    <mat-error>{{ getErrors(editUserForm, 'lastname') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12 l4">
+                <mat-form-field>
+                    <mat-label>Adresse email</mat-label>
+                    <input type="email" matInput formControlName="email" required>
+                    <mat-error>{{ getErrors(editUserForm, 'email') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12 m6 l4">
+                <mat-form-field>
+                    <mat-label>Fonctions</mat-label>
+                    <mat-select formControlName="roles" multiple>
+                        <mat-option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</mat-option>
+                    </mat-select>
+                    <mat-error>{{ getErrors(editUserForm, 'roles') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12 m6 l4">
+                <mat-form-field>
+                    <mat-label>Date de naissance</mat-label>
+                    <input matInput placeholder="Ex : 24/12/1989" [matDatepicker]="datePicker" formControlName="birthdate" required>
+                    <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #datePicker></mat-datepicker>
+                    <mat-error>{{ getErrors(editUserForm, 'birthdate') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s6 l4">
+                <mat-form-field>
+                    <mat-label>Gamertag</mat-label>
+                    <input type="text" matInput formControlName="gamertag">
+                    <mat-error>{{ getErrors(editUserForm, 'gamertag') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s6 l4">
+                <mat-form-field>
+                    <mat-label>Identifiant PSN</mat-label>
+                    <input type="text" matInput formControlName="psn">
+                    <mat-error>{{ getErrors(editUserForm, 'psn') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12 l4">
+                <mat-form-field>
+                    <mat-label>Identifiant Steam</mat-label>
+                    <input type="text" matInput formControlName="steam">
+                    <mat-error>{{ getErrors(editUserForm, 'steam') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12 l6">
+                <mat-form-field>
+                    <mat-label>Twitter</mat-label>
+                    <input type="text" matInput formControlName="twitter">
+                    <mat-error>{{ getErrors(editUserForm, 'twitter') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12 l6">
+                <mat-form-field>
+                    <mat-label>Facebook</mat-label>
+                    <input type="text" matInput formControlName="facebook">
+                    <mat-error>{{ getErrors(editUserForm, 'facebook') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12" (click)="editUserForm.enabled ? matFileInput.openFilePicker() : null">
+                <mat-form-field>
+                    <mat-label>Ajouter une nouvelle photo de profil</mat-label>
+                    <ngx-mat-file-input #matFileInput formControlName="pictureFile" accept=".png, .jpg, .jpeg"></ngx-mat-file-input>
+                    <mat-error>{{ getErrors(editUserForm, 'pictureFile') }}</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="col s12 center">
+                <mat-slide-toggle formControlName="subscription">L'utilisateur a payé sa cotisation</mat-slide-toggle>
+            </div>
+
+            <div class="col s12">
+                <button mat-raised-button color="accent" [disabled]="editUserForm.invalid || editUserForm.disabled">Modifier l'utilisateur</button>
+            </div>
+        </form>
+    </mat-tab>
+</mat-tab-group>

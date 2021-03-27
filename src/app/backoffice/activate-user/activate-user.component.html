@@ -1,0 +1,95 @@
+<form class="row" (ngSubmit)="onActivateUser()" [formGroup]="userForm" *ngIf="allowAccess">
+    <div class="col s12 m6 l4">
+        <mat-form-field>
+            <mat-label>Prénom</mat-label>
+            <input type="text" matInput formControlName="firstname" required>
+            <mat-error>{{ getErrors('firstname') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12 m6 l4">
+        <mat-form-field>
+            <mat-label>Nom</mat-label>
+            <input type="text" matInput formControlName="lastname" required>
+            <mat-error>{{ getErrors('lastname') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12 m6 l4">
+        <mat-form-field>
+            <mat-label>Date de naissance</mat-label>
+            <input matInput placeholder="Ex : 24/12/1989" [matDatepicker]="datePicker" formControlName="birthdate" required>
+            <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+            <mat-datepicker #datePicker></mat-datepicker>
+            <mat-error>{{ getErrors('birthdate') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12 m6 l4">
+        <mat-form-field>
+            <mat-label>Gamertag</mat-label>
+            <input type="text" matInput formControlName="gamertag">
+            <mat-error>{{ getErrors('gamertag') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12 m6 l4">
+        <mat-form-field>
+            <mat-label>Identifiant PSN</mat-label>
+            <input type="text" matInput formControlName="psn">
+            <mat-error>{{ getErrors('psn') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12 m6 l4">
+        <mat-form-field>
+            <mat-label>Identifiant Steam</mat-label>
+            <input type="text" matInput formControlName="steam">
+            <mat-error>{{ getErrors('steam') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12 l6">
+        <mat-form-field>
+            <mat-label>Twitter</mat-label>
+            <input type="text" matInput formControlName="twitter">
+            <mat-error>{{ getErrors('twitter') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12 l6">
+        <mat-form-field>
+            <mat-label>Facebook</mat-label>
+            <input type="text" matInput formControlName="facebook">
+            <mat-error>{{ getErrors('facebook') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12" (click)="matFileInput.openFilePicker()">
+        <mat-form-field>
+            <mat-label>Ajouter une photo de profil</mat-label>
+            <ngx-mat-file-input #matFileInput formControlName="pictureFile" accept=".png, .jpg, .jpeg"></ngx-mat-file-input>
+            <mat-error>{{ getErrors('pictureFile') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12 l6">
+        <mat-form-field>
+            <mat-label>Mot de passe</mat-label>
+            <input type="password" matInput formControlName="password" required>
+            <mat-error>{{ getErrors('password') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12 l6">
+        <mat-form-field>
+            <mat-label>Confirmer le mot de passe</mat-label>
+            <input type="password" matInput formControlName="passwordConfirm" required>
+            <mat-error>{{ getErrors('passwordConfirm') }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12">
+        <button mat-raised-button color="primary" [disabled]="userForm.invalid && userForm.dirty">Activer le compte</button>
+    </div>
+</form>

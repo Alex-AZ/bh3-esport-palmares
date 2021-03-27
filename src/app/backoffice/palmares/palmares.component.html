@@ -1,0 +1,153 @@
+<form class="row" (ngSubmit)="onAddPalmares()" [formGroup]="addPalmaresForm">
+    <div class="col s4">
+        <mat-form-field>
+            <mat-label>Date</mat-label>
+            <input 
+                matInput placeholder="Ex : 24/12/2020" 
+                [matDatepicker]="palmaresPicker" 
+                formControlName="date"
+            >
+            <mat-datepicker-toggle 
+                matSuffix [for]="palmaresPicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #palmaresPicker></mat-datepicker>
+            <mat-error *ngIf="addPalmaresForm.controls.date.invalid">
+                {{ getDateErrors() }}
+            </mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s4">
+        <mat-form-field>
+            <mat-label for="title">Événement</mat-label>
+            <input matInput type="text" placeholder="Ex : 14aineEsport" formControlName="event">
+            <mat-error *ngIf="addPalmaresForm.controls.event.invalid">{{ getEventErrors() }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s4">
+        <mat-form-field>
+            <mat-label for="title">Jeu</mat-label>
+            <input matInput type="text" placeholder="Ex : Rocket League" formControlName="game">
+            <mat-error *ngIf="addPalmaresForm.controls.game.invalid">{{ getGameErrors() }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s6">
+        <mat-form-field>
+            <mat-label>Pays</mat-label>
+            <mat-select formControlName="country">
+                <mat-option value="France">France</mat-option>
+                <mat-option value="Angleterre">Angleterre</mat-option>
+                <mat-option value="Espagne">Espagne</mat-option>
+                <mat-option value="Belgique">Belgique</mat-option>
+            </mat-select>
+            <mat-error *ngIf="addPalmaresForm.controls.country.invalid">{{ getCountryErrors() }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s6">
+        <mat-form-field>
+            <mat-label for="title">Rang</mat-label>
+            <input matInput type="number" placeholder="Ex : 1er" formControlName="ranking">
+            <mat-error *ngIf="addPalmaresForm.controls.ranking.invalid">{{ getRankingErrors() }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="col s12">
+        <button 
+            mat-raised-button color="primary" 
+            type="button" (click)="onAddPalmares()" 
+            *ngIf="!editedPalmares"
+            [disabled]="addPalmaresForm.invalid && addPalmaresForm.dirty" 
+            id="btn-palmares">
+            Ajouter le palmarès
+        </button>
+        <button 
+            mat-raised-button color="accent" type="button" 
+            (click)="onEditPalmares()" *ngIf="editedPalmares"
+            [disabled]="addPalmaresForm.invalid" 
+            id="btn-palmares">
+            Modifier le palmarès
+        </button>
+    </div>
+</form>
+
+<div class="row">
+    <div class="col s12">
+        <div class="mat-elevation-z8">
+            <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" id="palmares">
+                <!-- Date Column -->
+                <ng-container matColumnDef="date" class="th-td">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+                    <td mat-cell *matCellDef="let row"> {{row.date | date: 'dd/MM/YYYY'}} </td>
+                </ng-container>
+
+                <!-- Event Column -->
+                <ng-container matColumnDef="event" class="th-td">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Événement </th>
+                    <td mat-cell *matCellDef="let row"> {{row.event}} </td>
+                </ng-container>
+
+                <!-- Game Column -->
+                <ng-container matColumnDef="game" class="th-td">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Jeu </th>
+                    <td mat-cell *matCellDef="let row"> {{row.game}} </td>
+                </ng-container>
+
+                <!-- Game Column -->
+                <ng-container matColumnDef="country" class="th-td">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Pays </th>
+                    <td mat-cell *matCellDef="let row"> {{row.country}} </td>
+                </ng-container>
+
+                <!-- Ranking Column -->
+                <ng-container matColumnDef="ranking" class="th-td">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Rang </th>
+                    <td mat-cell *matCellDef="let row"> {{row.ranking}} </td>
+                </ng-container>
+
+                <!-- Update Column -->
+                <ng-container matColumnDef="update">
+                    <th mat-header-cell *matHeaderCellDef> Modifier </th>
+                    <td mat-cell *matCellDef="let row">
+                        <button mat-icon-button
+                            [matTooltip]="editedPalmares === row ? 'Annuler les modifications' : 'Modifier le palmarès'"
+                            [matTooltipClass]="editedPalmares === row ? 'tooltip-accent' : 'tooltip-primary'"
+                            color="{{ row === editedPalmares ? 'primary' : 'accent' }}"
+                            aria-label="Modifier le Palmarès" type="button" (click)="onToggleEditPalmares(row)">
+                            <mat-icon class="mat-18">edit</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <!-- Delete Column -->
+                <ng-container matColumnDef="delete">
+                    <th mat-header-cell *matHeaderCellDef> Supprimer </th>
+                    <td mat-cell *matCellDef="let row">
+                        <button mat-icon-button
+                            color="warn"
+                            aria-label="Supprimer le Palmares"
+                            type="button"
+                            (click)="onDeletePalmares(row)">
+                            <mat-icon class="mat-18">delete</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <!-- Toggle Column -->
+                <ng-container matColumnDef="visibleOnHomepage" class="th-td">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Page d'accueil </th>
+                    <td mat-cell *matCellDef="let row">
+                        <mat-slide-toggle [checked]="row.visibleOnHomepage" (toggleChange)="onToggleVisibility(row)"></mat-slide-toggle>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+        </div>
+    </div>
+</div>

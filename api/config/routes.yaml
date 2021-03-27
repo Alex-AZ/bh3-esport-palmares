@@ -1,0 +1,5 @@
+angular:
+    path: '/{req}'
+    defaults: { _controller: App\Controller\AngularController::index }
+    requirements:
+        req: "^((?!api).)*$"
